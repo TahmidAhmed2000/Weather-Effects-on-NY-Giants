@@ -20,8 +20,7 @@ library(ggthemes)
 ```{r kicker, echo=FALSE, include=FALSE}
 # Downloading Kicker Data
 url_kickers = "https://raw.githubusercontent.com/Nolanole/NFL-Weather-Project/master/Game_Logs_Kickers.csv"
-url_kickers <- read_csv(url(url_kickers)) %>%
-  clean_names()
+url_kickers <- read_csv(url(url_kickers)) 
 url_kickers
 ```
 
@@ -107,6 +106,26 @@ filter(name == "Manning, Eli", season == "Regular Season") %>%
   xlab("Temperature")
 ```
 
+```{r}
+
+
+view( url_rb %>%
+  filter(Name == "Barber, Tiki" | Name == "Jacobs, Brandon", 
+         ((Year == 2000 | Year == 2001 | Year == 2002 | Year == 2003 | Year == 2004 | Year == 2005 | Year == 2006 | Year == 2007 | Year == 2008 | Year == 2009 | Year == 2010 | Year == 2011 | Year == 2012 | Year == 2013 | Year == 2014 | Year == 2015 | Year == 2016 | Year == 2017)),
+         Season == "Regular Season"
+         ))
+
+
+
+```
+
+```{r}
+giantsrb <- url_rb %>% filter(grepl(c("2010|2011|2012|2013|2014|2015|2016|2017"), Year)) %>%
+  filter(Season == "Regular Season", Name == "Jacobs, Brandon" | Name == "Jennings, Rashad") %>%
+    slice(-c(108:120)) %>%
+    slice(-c(49:95))
+
+```
 
 
 
