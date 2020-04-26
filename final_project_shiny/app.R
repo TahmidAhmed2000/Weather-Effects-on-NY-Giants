@@ -33,11 +33,16 @@ ui <- fluidPage(
                           You can find the code to this project on my ",
                           a("GitHub",
                             href = "https://github.com/TahmidAhmed2000"),
-                          "account page. My email is tahmidahmed@college.harvard.edu."
+                          "account page. My email is tahmidahmed@college.harvard.edu)."
                         )),
                 
-             tabPanel("Weather"),
-             p("Weather effects over time"),
+             tabPanel(
+                 title = "Overall Team",
+                 h2(
+                    "Points Scored Over Time"
+                    ),
+             p("Use the options in the side panel to view the graph comparing points scored over time while changing temperature"
+               ),
              sliderInput(
                  inputId = "avg_temp",
                  label = "Temperature",
@@ -51,7 +56,7 @@ ui <- fluidPage(
                  value = FALSE
              ),
              mainPanel(plotOutput("timePlot") 
-             )))
+             ))))
                        
 
 # Define server logic required to draw a histogram
