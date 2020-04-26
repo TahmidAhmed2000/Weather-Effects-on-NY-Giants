@@ -12,6 +12,7 @@ library(shinythemes)
 library(tidyverse)
 
 joined <- readRDS("joined.rds")
+giants_weather <- readRDS("giants_weather.rds")
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
@@ -33,9 +34,25 @@ ui <- fluidPage(
                           a("GitHub",
                             href = "https://github.com/TahmidAhmed2000"),
                           "account page. My email is tahmidahmed@college.harvard.edu."
-                        )
-                        
-               )))
+                        )),
+                
+             tabPanel("Weather"),
+             p("Weather effects over time"),
+             sliderInput(
+                 inputId = "avg_temp",
+                 label = "Temperature",
+                 min = 29,
+                 max = 83,
+                 value = c(30, 50)
+             ),
+             checkboxInput(
+                 inputId = "line",
+                 label = "Show Best Fit Line",
+                 value = FALSE
+             ),
+             mainPanel(plotOutput("timePlot") 
+             )))
+                       
 
 # Define server logic required to draw a histogram
 server <- function(input, output) {
@@ -50,6 +67,20 @@ server <- function(input, output) {
         xlab("Temperature")
     plot1
     })
+    
+    output$timePlot <- renderPlot({plottime <- giants_weather %>%
+        filter(avg_temp >= input$avg_temp[1] & avg_temp <= input$avg_temp[2]) %>%
+        ggplot(aes(date, giants_points, color = sky)) + 
+        geom_point()
+    
+    if (input$line == TRUE) {
+        plottime <-
+            plottime + geom_smooth(method = "lm",
+                                           se = FALSE,
+                                           lty = 2)
+    }
+    plottime
+})
     
 }
 

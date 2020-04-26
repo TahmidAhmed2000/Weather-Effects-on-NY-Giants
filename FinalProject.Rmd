@@ -57,6 +57,9 @@ giantsweather <- url_weathergit %>%
   mutate(id = 1:n()) %>%
   mutate(giants_points = ifelse(home == "New York Giants", score_home, score_away))
 
+saveRDS(giantsweather, file = "final_project_shiny/giants_weather.rds")
+
+
 giants_stadium <- url_stadium %>%
   filter(team_name == "Giants" & (year == 2010 | year == 2011 | year == 2012 | year == 2013 | year == 2014 | year == 2015 | year == 2016 | year == 2017) & weekly_attendance != "NA") %>%
   mutate(id = 1:n())
@@ -83,7 +86,26 @@ ggplot(joineddata, aes(avg_temp, weekly_attendance)) +
 
 ```
 
+```{r eli, echo=FALSE}
 
+EM_regular <- url_qbweather %>%
+filter(name == "Manning, Eli", season == "Regular Season")
+
+```
+
+```{r echo=FALSE}
+
+url_qbweather %>%
+filter(name == "Manning, Eli", season == "Regular Season") %>%
+  ggplot(aes(avg_wind, yards)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  theme_classic() +
+  labs(title = "Weather Impact on Eli Manning's Yardage During the Regular Season") +
+  labs(subtitle = "At start of career to 2017") +
+  ylab("Yards") +
+  xlab("Temperature")
+```
 
 
 
