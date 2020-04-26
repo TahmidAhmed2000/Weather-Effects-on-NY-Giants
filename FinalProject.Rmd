@@ -66,6 +66,8 @@ giants_stadium <- url_stadium %>%
 
 joineddata <- left_join(giantsweather, giants_stadium, by = "id")
 
+saveRDS(joineddata, file = "final_project_shiny/joined.rds")
+
 ```
 
 ```{r attendance, echo=FALSE}
