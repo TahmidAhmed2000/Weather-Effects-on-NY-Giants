@@ -7,24 +7,83 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
+library(readr)
+library(tidyverse)
+library(janitor)
+library(reprex)
+library(gt)
+library(xml2)
+library(ggthemes)
 ```
 
-## R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+```{r kicker, echo=FALSE, include=FALSE}
+# Downloading Kicker Data
+url_kickers = "https://raw.githubusercontent.com/Nolanole/NFL-Weather-Project/master/Game_Logs_Kickers.csv"
+url_kickers <- read_csv(url(url_kickers)) %>%
+  clean_names()
+url_kickers
 ```
 
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r qbweather, include = FALSE, echo = FALSE}
+# Qb and weather data merged
+url_qbweather = "https://raw.githubusercontent.com/Nolanole/NFL-Weather-Project/master/QB_weather_cleaned.csv"
+url_qbweather<- read_csv(url(url_qbweather))
+url_qbweather
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+```{r rb, include = FALSE, echo = FALSE}
+# Downloading rb data
+url_rb = "https://raw.githubusercontent.com/Nolanole/NFL-Weather-Project/master/Game_Logs_Runningback.csv"
+url_rb <- read_csv(url(url_rb))
+```
+
+```{r weat, include = FALSE, echo = FALSE}
+# weather in all games 
+url_weathergit = "https://raw.githubusercontent.com/Nolanole/NFL-Weather-Project/master/all_games_weather.csv"
+url_weathergit <- read_csv(url(url_weathergit))
+```
+
+```{r stadium, include = FALSE, echo = FALSE}
+url_stadium = "https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-02-04/attendance.csv"
+url_stadium <- read_csv(url(url_stadium))
+```
+
+```{r giants, echo=FALSE}
+giantsweather <- url_weathergit %>%
+  filter(away == "New York Giants" | home == "New York Giants") %>%
+  slice(495:627) %>%
+  slice(-c(33:36, 117)) %>%
+  mutate(id = 1:n()) %>%
+  mutate(giants_points = ifelse(home == "New York Giants", score_home, score_away))
+
+giants_stadium <- url_stadium %>%
+  filter(team_name == "Giants" & (year == 2010 | year == 2011 | year == 2012 | year == 2013 | year == 2014 | year == 2015 | year == 2016 | year == 2017) & weekly_attendance != "NA") %>%
+  mutate(id = 1:n())
+```
+
+```{r joineddata, echo=FALSE}
+
+joineddata <- left_join(giantsweather, giants_stadium, by = "id")
+
+```
+
+```{r attendance, echo=FALSE}
+
+# Attendance plot
+ggplot(joineddata, aes(avg_temp, weekly_attendance)) +
+  geom_point() + geom_smooth(method = "lm") +
+  theme_classic() +
+  labs(title = "Weather's Impact on Attendance of Giants Games",
+       subtitle = "Appears to be no correlation") +
+  ylab("Attendance") +
+  xlab("Temperature")
+
+```
+
+
+
+
+
+
+
