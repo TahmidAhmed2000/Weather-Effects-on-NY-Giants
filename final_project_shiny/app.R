@@ -11,6 +11,8 @@ library(shiny)
 library(shinythemes)
 library(tidyverse)
 library(broom)
+library(gt)
+library(readr)
 
 joined <- readRDS("joined.rds")
 giants_weather <- readRDS("giants_weather.rds")
@@ -26,20 +28,9 @@ ui <- fluidPage(
                tabPanel("Stadium Attendance", mainPanel(h1('Stadium Attendance Regression'),
                                                         p("This plot joined both weather data and stadium attendance of the New York Giants. It can be seen that there over time, there is no strong correlation between average temperature and stadium attendance. While the relationship is not significant, this plot shows that fans will attend games no matter the temperature."),
                                                         p("Another notable aspect of the plot is that games with 90,000 attendees seems to be outliers. They are outliers because this is when the Giants play in the Cowboys stadium, which is one of the stadiums that holds the most amount of fans."),
+                                                        p("After conducting a regression of temperature and stadium attendance, I get a correlation of -.03, which shows that there weekly attendance and temperature have a week relation. Furthermore, the regression coefficient for avg_temp was -16.08 with a p-value of .734. Given that the p-value is also greater than 0.05, based on the p-value test, this coefficient is not statistically significant."),
                                                         plotOutput("attendanceplot"))),
-               tabPanel("Analysis", h1('Looking at Regression'),
-                        p("After conducing a regression of temperature and stadium attendance, I get a correlation of -.03, which shows that there weekly attendance and temperature have a week relation. Furthermore, the regression coefficient for avg_temp was -16.08 with a p-value of .734. Given that the p-value is also greater than 0.05, based on the p-value test, this coefficient is not statistically significant)."
-                          
-                        )),
                
-               tabPanel("About", mainPanel('Background'),
-                        br(),
-                        p("In this project, I am focuing on the effects of weather on the New York Giants performance and attendance of games. The weather data and game logs of players is sourced from the Github account, Nolanole. The data contains weather characteristics like average temperature, dewpoint, humidity, etc. Furthermore, I have joined the weather data and player statistics with stadium attendance to see how weather affects attendance of games. The attendance data is sourced from the Github profile, Rfordatascience. I am from New York and the Giants are my favorite team, and I thought it would be interesting to focus on my favorite team. 
-                          You can find the code to this project on my ",
-                          a("GitHub",
-                            href = "https://github.com/TahmidAhmed2000"),
-                          "account page. My email is tahmidahmed@college.harvard.edu)."
-                        )),
                 
              tabPanel(
                  title = "Overall Team",
@@ -70,7 +61,7 @@ ui <- fluidPage(
                                br(),
                                
                                sidebarPanel(
-                                   h4("About"),
+                                   h4("Regressions"),
                                    p("These plots show how Eli Manning is
                                      impacted by different weather conditions."),
                                    
@@ -91,21 +82,35 @@ ui <- fluidPage(
                                                         br(),
                                                         plotOutput("EMplot"),
                                                         br(),
-                                                        p("The above plots show the broad correlation between the two data points.
-                                                       There is not necessarily any causation, this is just observational and 
-                                                       open to interpretation.")
+                                                        p("The plots above show the regressions of different weather variables on Eli Manning's yardage. It appears that the variables have a somewhat moderate relationship with yardage. Variables other than temperature are tested because there is a misconception that only temperature can play a role in football performance.")
                                                ),
                                                tabPanel("Models",
                                                         br(),
                                                         gt_output("em_model"),
                                                         br(),
                                                         br(),
-                                                        p(paste("The above model shows the regression coefficients for the given single 
-                                                             variable to the vote leave percentage. An increse in one point of the 
-                                                             variable will have an avergae treatment affect of displayed coefficient 
-                                                             on the slope of the regression from the intercept.")),
+                                                        p(paste("The above regression model shows the regression coefficients for the respective weather 
+                                                             variable on Eli Manning's yardage. The coefficient is essentially the Average Treatment Effect
+                                                             of increasing the given weather variable by one point on Eli Manning's yardage in a game.")),
+                                                        ))))),
                                                         
-                                               )))))))
+                                            
+                         
+                tabPanel(title = "About", h3('Background'),
+                                            br(),
+                                            p("My name is Tahmid Ahmed. In this project, I am focusing on the effects of weather on the New York Giants performance and attendance of games. The weather data and game logs of players are sourced from the Github account, Nolanole. The data contains weather characteristics like average temperature, dewpoint, humidity, etc. Furthermore, I have joined the weather data and player statistics with stadium attendance to see how weather affects attendance of games. The attendance data is sourced from the Github profile, Rfordatascience. I am from New York and the Giants are my favorite team, and I thought it would be interesting to focus on my favorite team. 
+                          You can find the code to this project on my ",
+                                              a("GitHub",
+                                                href = "https://github.com/TahmidAhmed2000"),
+                                              "account page. My email is tahmidahmed@college.harvard.edu."))))
+                
+               
+                           
+                         
+                                            
+                         
+
+
              
 
     
@@ -132,7 +137,12 @@ server <- function(input, output) {
     output$timePlot <- renderPlot({plottime <- giants_weather %>%
         filter(avg_temp >= input$avg_temp[1] & avg_temp <= input$avg_temp[2]) %>%
         ggplot(aes(date, giants_points, color = precipitation)) + 
-        geom_point()
+        geom_point() +
+        theme_bw() +
+        labs(title = "Temperature's Effect on Points Scored Over Time",
+             subtitle = "looking at data since 2010") +
+        xlab("Year") +
+        ylab("Points Scored")
     
     if (input$line == TRUE) {
         plottime <-
@@ -172,7 +182,7 @@ server <- function(input, output) {
         ggplot(EM, aes(x_value, yards, size = tds, color = precipitation)) +
             geom_point() +
             geom_smooth(method = "lm", se = F, color = "black") +
-            labs(y = "Percentage vote leave",
+            labs(y = "Yards",
                  x = x_lab,
                  title = EM_title) +
             theme_bw()
