@@ -65,7 +65,7 @@ ui <- fluidPage(
                                    p("These plots show how Eli Manning is
                                      impacted by different weather conditions."),
                                    
-                                   helpText("Choose a varibale to view regression"),
+                                   helpText("Use the options to view different regressions"),
                                selectInput(inputId = "weather",
                                                label = "Variable:",
                                                choices = c("Average Temperature" = "avg_temp",
@@ -75,23 +75,23 @@ ui <- fluidPage(
                                                selected = "Average Temperature")),
                                mainPanel(
                                    
-                                   # main panel has two subset tabs for plot or gt tables
+                                   # Adding gt tables with confidence intervals
                                    
                                    tabsetPanel(id = "tabsMain",
                                                tabPanel("Plots",
                                                         br(),
                                                         plotOutput("EMplot"),
                                                         br(),
-                                                        p("The plots above show the regressions of different weather variables on Eli Manning's yardage. It appears that the variables have a somewhat moderate relationship with yardage. Variables other than temperature are tested because there is a misconception that only temperature can play a role in football performance.")
+                                                        p("The plots show the regressions of different weather variables on Eli Manning's yardage. It appears that the variables have a somewhat moderate relationship with yardage. Variables other than temperature are tested because there is a misconception that only temperature can play a role in football performance.")
                                                ),
                                                tabPanel("Models",
                                                         br(),
                                                         gt_output("em_model"),
                                                         br(),
                                                         br(),
-                                                        p(paste("The above regression model shows the regression coefficients for the respective weather 
-                                                             variable on Eli Manning's yardage. The coefficient is essentially the Average Treatment Effect
-                                                             of increasing the given weather variable by one point on Eli Manning's yardage in a game.")),
+                                                        p(paste("The regression model shows the regression coefficients and their confidence intervals for respective weather 
+                                                             variables on Eli Manning's yardage. The coefficient is essentially the Average Treatment Effect
+                                                             of increasing the given weather variable by one unit on Eli Manning's yardage in a game.")),
                                                         ))))),
                                                         
                                             
