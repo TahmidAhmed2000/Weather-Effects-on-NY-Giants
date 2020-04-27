@@ -10,13 +10,18 @@
 library(shiny)
 library(shinythemes)
 library(tidyverse)
+library(broom)
 
 joined <- readRDS("joined.rds")
 giants_weather <- readRDS("giants_weather.rds")
+EM <- readRDS("EM.rds")
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
+
+    # Added theme that had NY Giants colors
     theme = shinytheme("superhero"),
+    # Information of model
     navbarPage("Weather Effects on NY Giants",
                tabPanel("Stadium Attendance", mainPanel(h1('Stadium Attendance Regression'),
                                                         p("This plot joined both weather data and stadium attendance of the New York Giants. It can be seen that there over time, there is no strong correlation between average temperature and stadium attendance. While the relationship is not significant, this plot shows that fans will attend games no matter the temperature."),
@@ -46,8 +51,8 @@ ui <- fluidPage(
              sliderInput(
                  inputId = "avg_temp",
                  label = "Temperature",
-                 min = 29,
-                 max = 83,
+                 min = 14,
+                 max = 86,
                  value = c(30, 50)
              ),
              checkboxInput(
@@ -56,7 +61,58 @@ ui <- fluidPage(
                  value = FALSE
              ),
              mainPanel(plotOutput("timePlot") 
-             ))))
+             )),
+             
+             # Eli Manning
+             
+             tabPanel("Quarterback",
+                      tabPanel("Graphics",
+                               br(),
+                               
+                               sidebarPanel(
+                                   h4("About"),
+                                   p("These plots show how Eli Manning is
+                                     impacted by different weather conditions."),
+                                   
+                                   helpText("Choose a varibale to view regression"),
+                               selectInput(inputId = "weather",
+                                               label = "Variable:",
+                                               choices = c("Average Temperature" = "avg_temp",
+                                                           "Average Dewpoint" = "avg_dewpoint",
+                                                           "Average Humidity" = "avg_humidity",
+                                                           "Average Wind Speed" = "avg_wind"),
+                                               selected = "Average Temperature")),
+                               mainPanel(
+                                   
+                                   # main panel has two subset tabs for plot or gt tables
+                                   
+                                   tabsetPanel(id = "tabsMain",
+                                               tabPanel("Plots",
+                                                        br(),
+                                                        plotOutput("EMplot"),
+                                                        br(),
+                                                        p("The above plots show the broad correlation between the two data points.
+                                                       There is not necessarily any causation, this is just observational and 
+                                                       open to interpretation.")
+                                               ),
+                                               tabPanel("Models",
+                                                        br(),
+                                                        gt_output("em_model"),
+                                                        br(),
+                                                        br(),
+                                                        p(paste("The above model shows the regression coefficients for the given single 
+                                                             variable to the vote leave percentage. An increse in one point of the 
+                                                             variable will have an avergae treatment affect of displayed coefficient 
+                                                             on the slope of the regression from the intercept.")),
+                                                        
+                                               )))))))
+             
+
+    
+                      
+                               
+             
+             
                        
 
 # Define server logic required to draw a histogram
@@ -75,7 +131,7 @@ server <- function(input, output) {
     
     output$timePlot <- renderPlot({plottime <- giants_weather %>%
         filter(avg_temp >= input$avg_temp[1] & avg_temp <= input$avg_temp[2]) %>%
-        ggplot(aes(date, giants_points, color = sky)) + 
+        ggplot(aes(date, giants_points, color = precipitation)) + 
         geom_point()
     
     if (input$line == TRUE) {
@@ -86,6 +142,116 @@ server <- function(input, output) {
     }
     plottime
 })
+    
+    output$EMplot <- renderPlot({
+        
+        
+        if(input$weather == "avg_temp") {
+            x_value <- EM$avg_temp
+            x_lab <- "Average Temperature"
+            EM_title <- "Weather Impact on Eli Manning During the Regular Season"
+        } 
+        else if(input$weather == "avg_dewpoint") {
+            x_value <- EM$avg_dewpoint
+            x_lab <- "Average Dewpoint"
+            EM_title <- "Weather Impact on Eli Manning During the Regular Season"
+        } 
+        else if(input$weather == "avg_humidity") {
+            x_value <- EM$avg_humidity
+            x_lab <- "Average Humidity"
+            EM_title <- "Weather Impact on Eli Manning During the Regular Season"
+        }
+        else if(input$weather == "avg_wind") {
+            x_value <- EM$avg_wind
+            x_lab <- "Average Wind Speed"
+            EM_title <- "Weather Impact on Eli Manning During the Regular Season"
+        }
+        
+        # ggplot using my created variables
+        
+        ggplot(EM, aes(x_value, yards, size = tds, color = precipitation)) +
+            geom_point() +
+            geom_smooth(method = "lm", se = F, color = "black") +
+            labs(y = "Percentage vote leave",
+                 x = x_lab,
+                 title = EM_title) +
+            theme_bw()
+        
+    })
+
+
+    # for the gt regression tables I wanted more flexibilty for changing 
+    # titles etc so each plot is in its own if clasue to make changes 
+    # between them
+    
+    output$em_model <- render_gt({
+        
+        if(input$weather == "avg_temp") {
+            EM %>% 
+                lm(yards ~ avg_temp, .) %>% 
+                tidy(conf.int = T) %>% 
+                select(-c(std.error, p.value, statistic)) %>% 
+                mutate(term = c("Intercept", "Average Temperature")) %>% 
+                gt() %>% 
+                tab_header(title = "Effect of the Variable on Yardage") %>% 
+                cols_label(term = "",
+                           estimate = "Coefficient",
+                           conf.low = "5th percentile",
+                           conf.high = "95th percentile") %>%
+                tab_spanner(label = "Confidence Interval",
+                            columns = 3:4) %>% 
+                fmt_number(columns = 2:4, decimals = 2)
+        } 
+        else if(input$weather == "avg_dewpoint") {
+            EM %>% 
+                lm(yards ~ avg_dewpoint, .) %>% 
+                tidy(conf.int = T) %>% 
+                select(-c(std.error, p.value, statistic)) %>% 
+                mutate(term = c("Intercept", "Average Dewpoint")) %>% 
+                gt() %>% 
+                tab_header(title = "Effect of the Variable on Yardage") %>% 
+                cols_label(term = "",
+                           estimate = "Coefficient",
+                           conf.low = "5th percentile",
+                           conf.high = "95th percentile") %>%
+                tab_spanner(label = "Confidence Interval",
+                            columns = 3:4) %>% 
+                fmt_number(columns = 2:4, decimals = 2)
+        } 
+        else if(input$weather == "avg_humidity") {
+            EM %>% 
+                lm(yards ~ avg_humidity, .) %>% 
+                tidy(conf.int = T) %>% 
+                select(-c(std.error, p.value, statistic)) %>% 
+                mutate(term = c("Intercept", "Average Humidity")) %>% 
+                gt() %>% 
+                tab_header(title = "Effect of the Variable on Yardage") %>% 
+                cols_label(term = "",
+                           estimate = "Coefficient",
+                           conf.low = "5th percentile",
+                           conf.high = "95th percentile") %>%
+                tab_spanner(label = "Confidence Interval",
+                            columns = 3:4) %>% 
+                fmt_number(columns = 2:4, decimals = 2)  
+        }
+
+        else if(input$weather == "avg_wind") {
+            EM %>% 
+                lm(yards ~ avg_wind, .) %>% 
+                tidy(conf.int = T) %>% 
+                select(-c(std.error, p.value, statistic)) %>% 
+                mutate(term = c("Intercept", "Average Wind Speed")) %>% 
+                gt() %>% 
+                tab_header(title = "Effect of the Variable on Yardage") %>% 
+                cols_label(term = "",
+                           estimate = "Coefficient",
+                           conf.low = "5th percentile",
+                           conf.high = "95th percentile") %>%
+                tab_spanner(label = "Confidence Interval",
+                            columns = 3:4) %>% 
+                fmt_number(columns = 2:4, decimals = 2)  
+        }
+    }) 
     
 }
 

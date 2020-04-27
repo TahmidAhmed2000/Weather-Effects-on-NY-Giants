@@ -15,6 +15,7 @@ library(reprex)
 library(gt)
 library(xml2)
 library(ggthemes)
+library(gganimate)
 ```
 
 ```{r kicker, echo=FALSE, include=FALSE}
@@ -30,6 +31,12 @@ url_qbweather = "https://raw.githubusercontent.com/Nolanole/NFL-Weather-Project/
 url_qbweather<- read_csv(url(url_qbweather))
 url_qbweather
 ```
+
+```{r}
+saveRDS(url_qbweather, file = "final_project_shiny/qbdata.rds")
+
+```
+
 
 ```{r rb, include = FALSE, echo = FALSE}
 # Downloading rb data
@@ -90,6 +97,8 @@ ggplot(joineddata, aes(avg_temp, weekly_attendance)) +
 EM_regular <- url_qbweather %>%
 filter(name == "Manning, Eli", season == "Regular Season")
 
+saveRDS(EM_regular, file = "final_project_shiny/EM.rds")
+
 ```
 
 ```{r echo=FALSE}
@@ -100,11 +109,31 @@ filter(name == "Manning, Eli", season == "Regular Season") %>%
   geom_point() +
   geom_smooth(method = "lm", se = FALSE) +
   theme_classic() +
-  labs(title = "Weather Impact on Eli Manning's Yardage During the Regular Season") +
+  labs(title = "Weather Impact on Eli Manning During the Regular Season") +
   labs(subtitle = "At start of career to 2017") +
   ylab("Yards") +
   xlab("Temperature")
+
 ```
+
+
+
+
+
+
+
+
+
+
+
+```{r}
+ggplot(EM_regular, aes(avg_temp, yards, size = tds, color = precipitation)) +
+  geom_point() +
+  theme_bw()   
+```
+
+
+
 
 ```{r}
 
