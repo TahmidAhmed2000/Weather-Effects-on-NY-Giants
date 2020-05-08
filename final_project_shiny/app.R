@@ -55,7 +55,8 @@ ui <- fluidPage(
                                                           br(),
                                                           plotOutput("attplot"),
                                                           br(),
-                                                          p("The plots show the regressions of different weather variables on stadium attendance. It appears that the variables have a somewhat moderate relationship with yardage. Variables other than temperature are tested because there is a misconception that only temperature can play a role in football performance.")
+                                                          p("The plots show the regressions of different weather variables on stadium attendance. It appears that the there is no relation between weather and stadium attendance. Variables other than temperature are tested because there is a misconception that only temperature can play a role in football performance.
+                                                            What is interesting is that since there is no relation between weather and stadium attendance, this shows that people seem to not be affected by weather when paying to attend games")
                                                  ),
                                                  tabPanel("Models",
                                                           br(),
@@ -64,7 +65,8 @@ ui <- fluidPage(
                                                           br(),
                                                           p(paste("The regression model shows the regression coefficients and their confidence intervals for respective weather 
                                                              variables on stadium attendance. The coefficient is essentially the Average Treatment Effect
-                                                             of increasing the given weather variable by one unit on stadium attendance in a game.")),
+                                                             of increasing the given weather variable by one unit on stadium attendance. Furthermore, a Bayesian interpretation is 
+                                                             that we are 95% certain that the true value of the ATE is within this confidence interval.")),
                                 ))))),
                
     # Title of new tab focusing on how weather affects the overall team        
@@ -159,22 +161,22 @@ server <- function(input, output) {
         if(input$weather == "avg_temp") {
             x_value <- joined$avg_temp
             x_lab <- "Average Temperature"
-            EM_title <- "Weather Impact on Eli Manning During the Regular Season"
+            EM_title <- "Weather Impact on Stadium Attendance During the Regular Season"
         } 
         else if(input$weather == "avg_dewpoint") {
             x_value <- joined$avg_dewpoint
             x_lab <- "Average Dewpoint"
-            EM_title <- "Weather Impact on Eli Manning During the Regular Season"
+            EM_title <- "Weather Impact on Stadium Attendance During the Regular Season"
         } 
         else if(input$weather == "avg_humidity") {
             x_value <- joined$avg_humidity
             x_lab <- "Average Humidity"
-            EM_title <- "Weather Impact on Eli Manning During the Regular Season"
+            EM_title <- "Weather Impact on Stadium Attendance During the Regular Season"
         }
         else if(input$weather == "avg_wind") {
             x_value <- joined$avg_wind
             x_lab <- "Average Wind Speed"
-            EM_title <- "Weather Impact on Eli Manning During the Regular Season"
+            EM_title <- "Weather Impact on Stadium Attendance During the Regular Season"
         }
         
         # ggplot of ELi Manning using my created variables
@@ -184,7 +186,8 @@ server <- function(input, output) {
             geom_smooth(method = "lm", se = F, color = "black") +
             labs(y = "Yards",
                  x = x_lab,
-                 title = EM_title) +
+                 title = EM_title,
+                 subtitle = "Looking at data since 2010") +
             theme_bw()
         
     })
