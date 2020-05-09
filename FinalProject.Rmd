@@ -8,6 +8,8 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
+# Loaded all the packages I need for this project
+
 library(readr)
 library(tidyverse)
 library(janitor)
@@ -19,43 +21,67 @@ library(gganimate)
 ```
 
 ```{r kicker, echo=FALSE, include=FALSE}
-# Downloading Kicker Data
+
+# Downloading Kicker Data by reading the csv from online. I had to first name
+# the url, since I found it easier to use. In addition, the textbook helped me
+# when they talked about web scraping.
+
 url_kickers = "https://raw.githubusercontent.com/Nolanole/NFL-Weather-Project/master/Game_Logs_Kickers.csv"
 url_kickers <- read_csv(url(url_kickers)) 
 url_kickers
 ```
 
 ```{r qbweather, include = FALSE, echo = FALSE}
+
 # Qb and weather data merged
+
 url_qbweather = "https://raw.githubusercontent.com/Nolanole/NFL-Weather-Project/master/QB_weather_cleaned.csv"
 url_qbweather<- read_csv(url(url_qbweather))
 url_qbweather
 ```
 
-```{r}
+```{r qbweatherdat, include=FALSE}
+
+# Saved the qbweather data to use in my shiny. I decided to use RDS, because it
+# was easier to use. Also, previous github projects would save in RDS and found
+# that it was easy to use for Shiny.
+
 saveRDS(url_qbweather, file = "final_project_shiny/qbdata.rds")
 
 ```
 
 
 ```{r rb, include = FALSE, echo = FALSE}
-# Downloading rb data
+
+# Downloading rb data from online
+
 url_rb = "https://raw.githubusercontent.com/Nolanole/NFL-Weather-Project/master/Game_Logs_Runningback.csv"
 url_rb <- read_csv(url(url_rb))
 ```
 
 ```{r weat, include = FALSE, echo = FALSE}
-# weather in all games 
+
+# Downloaded weather in all games for project.
+
 url_weathergit = "https://raw.githubusercontent.com/Nolanole/NFL-Weather-Project/master/all_games_weather.csv"
 url_weathergit <- read_csv(url(url_weathergit))
 ```
 
 ```{r stadium, include = FALSE, echo = FALSE}
+
+# Downloaded the stadium attendance data from online.
+
 url_stadium = "https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-02-04/attendance.csv"
 url_stadium <- read_csv(url(url_stadium))
 ```
 
-```{r giants, echo=FALSE}
+```{r giants, include=FALSE}
+# Here I decided to filter the weather data looking at data since 2010. This
+# represented the more modern era of football, so I thought it would be nice to
+# use. In addition, I noticed that I can slice after slicing to truncate the
+# data even more. I also mutated "id", since I will be using this alter on when
+# I merge the data with stadium attendance.
+
 giantsweather <- url_weathergit %>%
   filter(away == "New York Giants" | home == "New York Giants") %>%
   slice(495:627) %>%
@@ -63,17 +89,26 @@ giantsweather <- url_weathergit %>%
   mutate(id = 1:n()) %>%
   mutate(giants_points = ifelse(home == "New York Giants", score_home, score_away))
 
+# Saved the giantsweather data in RDS form.
+
 saveRDS(giantsweather, file = "final_project_shiny/giants_weather.rds")
 
+# Here like how I did with the weather data, I am not filtering out the same way
+# for the stadium attendance data. I lso mutated "id" for the upcoming join.
 
 giants_stadium <- url_stadium %>%
   filter(team_name == "Giants" & (year == 2010 | year == 2011 | year == 2012 | year == 2013 | year == 2014 | year == 2015 | year == 2016 | year == 2017) & weekly_attendance != "NA") %>%
   mutate(id = 1:n())
 ```
 
-```{r joineddata, echo=FALSE}
+```{r joineddata, include=FALSE}
+
+# I decided to left_join the data as I felt that was easier. I also practiced
+# this command before, such as when I did them o previous psets and exams.
 
 joineddata <- left_join(giantsweather, giants_stadium, by = "id")
+
+# Saved the data in RDS format.
 
 saveRDS(joineddata, file = "final_project_shiny/joined.rds")
 
@@ -81,7 +116,9 @@ saveRDS(joineddata, file = "final_project_shiny/joined.rds")
 
 ```{r attendance, echo=FALSE}
 
-# Attendance plot
+# Generated the ggplot to show how temperature affects attendance. I would test
+# different weather variables in my shiny.
+
 ggplot(joineddata, aes(avg_temp, weekly_attendance)) +
   geom_point() + geom_smooth(method = "lm") +
   theme_classic() +
@@ -92,7 +129,9 @@ ggplot(joineddata, aes(avg_temp, weekly_attendance)) +
 
 ```
 
-```{r eli, echo=FALSE}
+```{r eli, include=FALSE}
+
+# I am looking at Eli Manning's data for the qb tab in my app. 
 
 EM_regular <- url_qbweather %>%
 filter(name == "Manning, Eli", season == "Regular Season")
@@ -101,7 +140,10 @@ saveRDS(EM_regular, file = "final_project_shiny/EM.rds")
 
 ```
 
-```{r echo=FALSE}
+```{r EMvone, echo=FALSE}
+
+# Made a ggplot of weather effects on Eli Manning for assitance with my Shiny. I
+# decided to use a regression in my app. 
 
 url_qbweather %>%
 filter(name == "Manning, Eli", season == "Regular Season") %>%
@@ -126,7 +168,11 @@ filter(name == "Manning, Eli", season == "Regular Season") %>%
 
 
 
-```{r}
+```{r elivtwo, echo=FALSE}
+
+# I made another Eli manning plot to add more details like adjusting size. I
+# would use this type of graph in my Shiny.
+
 ggplot(EM_regular, aes(avg_temp, yards, size = tds, color = precipitation)) +
   geom_point() +
   theme_bw()   
@@ -135,26 +181,6 @@ ggplot(EM_regular, aes(avg_temp, yards, size = tds, color = precipitation)) +
 
 
 
-```{r}
-
-
-view( url_rb %>%
-  filter(Name == "Barber, Tiki" | Name == "Jacobs, Brandon", 
-         ((Year == 2000 | Year == 2001 | Year == 2002 | Year == 2003 | Year == 2004 | Year == 2005 | Year == 2006 | Year == 2007 | Year == 2008 | Year == 2009 | Year == 2010 | Year == 2011 | Year == 2012 | Year == 2013 | Year == 2014 | Year == 2015 | Year == 2016 | Year == 2017)),
-         Season == "Regular Season"
-         ))
-
-
-
-```
-
-```{r}
-giantsrb <- url_rb %>% filter(grepl(c("2010|2011|2012|2013|2014|2015|2016|2017"), Year)) %>%
-  filter(Season == "Regular Season", Name == "Jacobs, Brandon" | Name == "Jennings, Rashad") %>%
-    slice(-c(108:120)) %>%
-    slice(-c(49:95))
-
-```
 
 
 
