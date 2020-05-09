@@ -55,7 +55,7 @@ ui <- fluidPage(
                                                           br(),
                                                           plotOutput("attplot"),
                                                           br(),
-                                                          p("The plots show the regressions of different weather variables on stadium attendance. It appears that the there is no relation between weather and stadium attendance. Variables other than temperature are tested because there is a misconception that only temperature can play a role in football performance.
+                                                          p("The plots show the regressions of different weather variables on stadium attendance. It appears that the there is no relation between weather and stadium attendance. Other weather variables are tested to see the vast effects of weather. 
                                                             What is interesting is that since there is no relation between weather and stadium attendance, this shows that people seem to not be affected by weather when paying to attend games")
                                                  ),
                                                  tabPanel("Models",
