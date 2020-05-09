@@ -95,7 +95,7 @@ ui <- fluidPage(
              mainPanel(plotOutput("timePlot")
              )),
              
-     # New tab for how weather affects the Quarterback
+     # New tab for how weather affects the Quarterback using similar code to the first tab.
              
              tabPanel(("Quarterback"),
                       tabPanel("Graphics",
@@ -134,26 +134,27 @@ ui <- fluidPage(
                                                         br(),
                                                         p(paste("The regression model shows the regression coefficients and their confidence intervals for respective weather 
                                                              variables on Eli Manning's yardage. The coefficient is essentially the Average Treatment Effect
-                                                             of increasing the given weather variable by one unit on Eli Manning's yardage in a game.")),
+                                                             of increasing the given weather variable by one unit on Eli Manning's yardage in a game. We can see that wind speed
+                                                             seems to have the most impact on his yardage.")),
                                                         ))))),
                                                         
                                             
-    # Created an About tab to describe project
+    # Created an About tab to describe project.
     
                 tabPanel(title = "About", h3('Background'),
                                             br(),
-                                            p("My name is Tahmid Ahmed. In this project, I am focusing on the effects of weather on the New York Giants performance and attendance of games. The weather data and game logs of players are sourced from the Github account, Nolanole. The data contains weather characteristics like average temperature, dewpoint, humidity, etc. Furthermore, I have joined the weather data and player statistics with stadium attendance to see how weather affects attendance of games. The attendance data is sourced from the Github profile, Rfordatascience. I am from New York and the Giants are my favorite team, and I thought it would be interesting to focus on my favorite team. 
+                                            p("My name is Tahmid Ahmed. In this project, I am focusing on the effects of weather on the New York Giants performance and attendance of games. The weather data and game logs of players are sourced from the Github account, Nolanole. The data contains weather characteristics like average temperature, dewpoint, humidity, etc. Furthermore, I have joined the weather data and player statistics with stadium attendance to see how weather affects attendance of games. The attendance data is sourced from the Github profile, Rfordatascience, and part of TidyTuesday. I am from New York and the Giants are my favorite team, and I thought it would be interesting to focus on my favorite team. 
                           You can find the code to this project on my ",
                                               a("GitHub",
                                                 href = "https://github.com/TahmidAhmed2000"),
-                                              "account page. My email is tahmidahmed@college.harvard.edu."))))
+                                              "account page. My email is tahmidahmed@college.harvard.edu. I want to thank Preceptor and my wonderful TF, Kaneesha Johnson, for teaching me the beauty of data science."))))
                 
 
 # Define server logic required to draw plots and graphs
 
 server <- function(input, output) {
 
-    # Created output plot for first tab, using ggplot
+    # Created output plot for first tab, using ggplot. Used an if and ifelse statement to help make my inputs. 
     
     output$attplot <- renderPlot({
         
@@ -179,7 +180,7 @@ server <- function(input, output) {
             EM_title <- "Weather Impact on Stadium Attendance During the Regular Season"
         }
         
-        # ggplot of ELi Manning using my created variables
+        # ggplot of weather and stadium attendance using my created variables
         
         ggplot(joined, aes(x_value, weekly_attendance, color = precipitation)) +
             geom_point() +
@@ -193,7 +194,7 @@ server <- function(input, output) {
     })
     
     
-    # To create the gt regression tables, I used else if statements to get more regressions. 
+    # To create the gt regression tables, I used else if statements to get more regressions. Code from psets helped me make code for regressions.
     
     output$att_model <- render_gt({
         
@@ -264,7 +265,7 @@ server <- function(input, output) {
         }
     }) 
     
-    # Created plot for second tab, using ggplot. However, I coded the option to add a regression line.
+    # Created plot for second tab, using ggplot. However, I coded the option to add a regression line. In addition, to make my sliders I decided to do the filter command that is able to move both directions. 
     
     output$timePlot <- renderPlot({plottime <- giants_weather %>%
         filter(avg_temp >= input$avg_temp[1] & avg_temp <= input$avg_temp[2]) %>%
@@ -285,7 +286,7 @@ server <- function(input, output) {
     plottime
 })
     
-    # Created output plot for Eli Manning, and creating the different options for weather. 
+    # Created output plot for Eli Manning, and creating the different options for weather, using similar code to first tab. 
     
     output$EMplot <- renderPlot({
         
@@ -324,7 +325,7 @@ server <- function(input, output) {
     })
 
 
-    # To create the gt regression tables, I used else if statements to get more regressions. 
+    # To create the gt regression tables, I used else if statements to get more regressions, using similar code to first tab.
     
     output$em_model <- render_gt({
         
